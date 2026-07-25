@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { VoiceInput } from '../ui/VoiceInput';
@@ -32,7 +32,7 @@ export const GenAIChat: React.FC<GenAIChatProps> = ({ userRole }) => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = async (text: string) => {
+  const handleSend = useCallback(async (text: string) => {
     if (!text.trim()) return;
     
     const newMessages: Message[] = [...messages, { role: 'user', content: text }];
@@ -65,11 +65,11 @@ export const GenAIChat: React.FC<GenAIChatProps> = ({ userRole }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [messages, userRole]);
 
-  const handleVoiceTranscript = (text: string) => {
+  const handleVoiceTranscript = useCallback((text: string) => {
     handleSend(text);
-  };
+  }, [handleSend]);
 
   return (
     <>
