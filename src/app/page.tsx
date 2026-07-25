@@ -1,43 +1,55 @@
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { cookies } from 'next/headers';
+import { verifyToken } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
-export default function Home() {
+export default async function Home() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('aegis_session')?.value;
+
+  if (token) {
+    const session = verifyToken(token);
+    if (session) {
+      if (session.role === 'Patient') redirect('/patient');
+      if (session.role === 'Caregiver') redirect('/caregiver');
+      if (session.role === 'Clinician') redirect('/clinician');
+    }
+  }
+
   return (
     <div className="container" style={{ justifyContent: 'center', alignItems: 'center', textAlign: 'center', minHeight: '100vh' }}>
       <div className="animate-fade-in" style={{ maxWidth: '800px', width: '100%' }}>
-        <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: 'var(--primary)' }}>Welcome to Aegis-Recovery</h1>
+        <h1 style={{ fontSize: '3.5rem', marginBottom: '1rem', color: 'var(--primary)' }}>Aegis-Recovery</h1>
         <p style={{ fontSize: '1.25rem', color: 'var(--text-muted)', marginBottom: '3rem' }}>
-          A secure, supportive space for both individuals in recovery and their caregivers.
-          Please select your path to begin.
+          Multi-Modal GenAI Recovery & Prevention Web Platform.
+          Evidence-based craving management, caregiver support, and real-time clinical monitoring.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-          <Card interactive={true} className="onboarding-card">
-            <h2 style={{ color: 'var(--secondary)' }}>Patient in Recovery</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', flex: 1 }}>
-              Focus on craving management, emotional stabilization, withdrawal tracking, and guided activities.
+        <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginBottom: '3rem' }}>
+          <Link href="/login">
+            <Button size="lg">Sign In</Button>
+          </Link>
+          <Link href="/register">
+            <Button size="lg" variant="secondary">Create Account</Button>
+          </Link>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+          <Card className="onboarding-card">
+            <h2 style={{ color: 'var(--secondary)' }}>For Patients</h2>
+            <p style={{ color: 'var(--text-muted)' }}>
+              Craving Urge Surfing, grounding techniques, withdrawal monitoring, and zero-typing voice companion.
             </p>
-            <Link href="/patient" style={{ display: 'block' }}>
-              <Button fullWidth style={{ backgroundColor: 'var(--secondary)' }}>Enter Patient Portal</Button>
-            </Link>
           </Card>
 
-          <Card interactive={true} className="onboarding-card">
-            <h2 style={{ color: 'var(--accent)' }}>Family Caregiver</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', flex: 1 }}>
-              Access tools for burnout prevention, boundary setting, self-care tracking, and crisis de-escalation.
+          <Card className="onboarding-card">
+            <h2 style={{ color: 'var(--accent)' }}>For Caregivers</h2>
+            <p style={{ color: 'var(--text-muted)' }}>
+              Burnout prevention prompts, loving boundaries tracker, self-care pivot routines, and crisis de-escalation scripts.
             </p>
-            <Link href="/caregiver" style={{ display: 'block' }}>
-              <Button fullWidth style={{ backgroundColor: 'var(--accent)' }}>Enter Caregiver Portal</Button>
-            </Link>
           </Card>
-        </div>
-        
-        <div style={{ marginTop: '4rem' }}>
-          <Link href="/clinician">
-            <Button variant="secondary" size="sm">Clinician Access</Button>
-          </Link>
         </div>
       </div>
     </div>

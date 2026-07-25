@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { retrieveProtocols } from '@/lib/medicalProtocols';
 import { updateRiskScore } from '@/lib/db';
+import { cookies } from 'next/headers';
+import { verifyToken } from '@/lib/auth';
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -9,6 +11,17 @@ const ai = new GoogleGenAI({
 
 export async function POST(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('aegis_session')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const session = verifyToken(token);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized session' }, { status: 401 });
+    }
+
     const { messages, userRole } = await request.json();
     
     const lastMessageText = messages[messages.length - 1].content;
@@ -65,7 +78,7 @@ export async function POST(request: Request) {
         riskScore = parsed.riskScore;
         
         // Persist to the database
-        updateRiskScore(userRole as 'patient' | 'caregiver', riskScore);
+        updateRiskScore(session.username, riskScore);
       }
     } catch (error) {
       console.error("Failed to parse JSON response from Gemini", error);

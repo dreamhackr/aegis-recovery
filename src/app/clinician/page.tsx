@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
 export default function ClinicianDashboard() {
+  const router = useRouter();
   const [patients, setPatients] = useState([
     { id: 1, name: 'Alex Johnson', type: 'Patient', riskScore: 10, status: 'Stable' },
     { id: 2, name: 'Sarah Smith', type: 'Caregiver', riskScore: 15, status: 'Stable' },
@@ -23,6 +25,15 @@ export default function ClinicianDashboard() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+    } catch {
+      console.error("Logout failed");
+    }
+  };
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     updateScores();
@@ -34,9 +45,7 @@ export default function ClinicianDashboard() {
     <div className="container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ color: 'var(--danger)' }}>Medical Practitioner Dashboard</h1>
-        <Link href="/">
-          <Button variant="secondary" size="sm">Logout</Button>
-        </Link>
+        <Button onClick={handleLogout} variant="secondary" size="sm">Logout</Button>
       </div>
 
       <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>

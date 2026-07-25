@@ -1,10 +1,23 @@
+'use client';
+
 import React from 'react';
 import { GenAIChat } from '@/components/chat/GenAIChat';
-import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { useRouter } from 'next/navigation';
 
 export default function PatientPortal() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+    } catch {
+      console.error("Logout failed");
+    }
+  };
+
   // Simple rotating content based on the day of the year
   const activities = [
     { title: "Mindfulness Breathing", description: "Take 5 minutes to focus on deep, rhythmic breathing to center yourself." },
@@ -22,9 +35,7 @@ export default function PatientPortal() {
     <div className="container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ color: 'var(--secondary)' }}>Patient Recovery Portal</h1>
-        <Link href="/">
-          <Button variant="secondary" size="sm">Back to Home</Button>
-        </Link>
+        <Button onClick={handleLogout} variant="secondary" size="sm">Logout</Button>
       </div>
       
       <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>

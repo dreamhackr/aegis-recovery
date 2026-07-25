@@ -1,16 +1,27 @@
+'use client';
+
 import React from 'react';
 import { GenAIChat } from '@/components/chat/GenAIChat';
-import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
 
 export default function CaregiverPortal() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+    } catch {
+      console.error("Logout failed");
+    }
+  };
+
   return (
     <div className="container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ color: 'var(--accent)' }}>Caregiver Support Portal</h1>
-        <Link href="/">
-          <Button variant="secondary" size="sm">Back to Home</Button>
-        </Link>
+        <Button onClick={handleLogout} variant="secondary" size="sm">Logout</Button>
       </div>
       
       <div className="animate-fade-in">
