@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-const SECRET_KEY = process.env.SESSION_SECRET || 'aegis-recovery-super-secret-key-12345';
+const SECRET_KEY = process.env.SESSION_SECRET || 'aegis-recovery-hmac-secret-key-prod-v1-2026';
 
 export interface SessionData {
   id: number;
@@ -24,8 +24,7 @@ export function verifyToken(token: string): SessionData | null {
     
     const decoded = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
     return decoded as SessionData;
-  } catch (error) {
-    console.error("Token verification failed", error);
+  } catch {
     return null;
   }
 }

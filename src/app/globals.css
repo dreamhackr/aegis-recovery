@@ -85,6 +85,16 @@ a {
   background: rgba(59, 130, 246, 0.1);
 }
 
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+}
+
 /* Base Layout */
 .container {
   max-width: 1200px;

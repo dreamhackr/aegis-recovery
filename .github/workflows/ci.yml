@@ -30,4 +30,4 @@ jobs:
       run: npm run build
       
     - name: Run Unit Tests
-      run: npx tsx tests/run_tests.ts
+      run: npm test

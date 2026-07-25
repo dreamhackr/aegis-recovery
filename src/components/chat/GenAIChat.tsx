@@ -32,11 +32,18 @@ export const GenAIChat: React.FC<GenAIChatProps> = ({ userRole }) => {
     scrollToBottom();
   }, [messages]);
 
+  // Use functional state update to avoid stale closure over `messages`
   const handleSend = useCallback(async (text: string) => {
     if (!text.trim()) return;
     
-    const newMessages: Message[] = [...messages, { role: 'user', content: text }];
-    setMessages(newMessages);
+    const userMessage: Message = { role: 'user', content: text };
+    
+    // Use functional updater to get latest messages without stale closure
+    let newMessages: Message[] = [];
+    setMessages(prev => {
+      newMessages = [...prev, userMessage];
+      return newMessages;
+    });
     setInput('');
     setIsLoading(true);
 
@@ -50,22 +57,20 @@ export const GenAIChat: React.FC<GenAIChatProps> = ({ userRole }) => {
       const data = await res.json();
       
       if (data.error) {
-        setMessages([...newMessages, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
       } else {
-        setMessages([...newMessages, { role: 'assistant', content: data.content }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
         
-        if (data.riskScore !== undefined) {
-          if (data.riskScore > 80) {
-            setShowEmergencyModal(true);
-          }
+        if (data.riskScore !== undefined && data.riskScore > 80) {
+          setShowEmergencyModal(true);
         }
       }
     } catch {
-      setMessages([...newMessages, { role: 'assistant', content: 'Connection error. Please try again.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error. Please try again.' }]);
     } finally {
       setIsLoading(false);
     }
-  }, [messages, userRole]);
+  }, [userRole]);
 
   const handleVoiceTranscript = useCallback((text: string) => {
     handleSend(text);

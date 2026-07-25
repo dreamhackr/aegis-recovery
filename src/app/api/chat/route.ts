@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+  apiKey: process.env.GEMINI_API_KEY || '',
 });
 
 export async function POST(request: Request) {
@@ -22,12 +22,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized session' }, { status: 401 });
     }
 
-    const { messages, userRole } = await request.json();
+    const body = await request.json();
+    const messages = body.messages;
     
-    const lastMessageText = messages[messages.length - 1].content;
+    // Validate messages array
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json({ error: 'Messages array is required and must not be empty' }, { status: 400 });
+    }
+
+    // Derive role from server-verified session — never trust client input
+    const userRole = session.role === 'Patient' ? 'patient' : session.role === 'Caregiver' ? 'caregiver' : 'other';
+    
+    const lastMessageText = messages[messages.length - 1]?.content;
+    if (!lastMessageText || typeof lastMessageText !== 'string') {
+      return NextResponse.json({ error: 'Invalid message format' }, { status: 400 });
+    }
+
     const retrievedContext = retrieveProtocols(lastMessageText);
 
-    // Create the system instruction based on the user role (Patient or Caregiver)
+    // Create the system instruction based on the server-derived user role
     let systemInstruction = '';
     
     if (retrievedContext) {
@@ -46,7 +59,6 @@ export async function POST(request: Request) {
       schemaInstruction = `\n\nIMPORTANT: You must respond in valid JSON format ONLY, using the following structure: {"response": "your conversational response to the user", "riskScore": 0}`;
     }
 
-    const lastMessage = messages[messages.length - 1].content;
     const previousMessages = messages.slice(0, -1).map((msg: { role: string, content: string }) => ({
       role: msg.role === 'user' ? 'user' : 'model',
       parts: [{ text: msg.content }],
@@ -58,7 +70,7 @@ export async function POST(request: Request) {
         ...previousMessages,
         {
           role: 'user',
-          parts: [{ text: lastMessage }],
+          parts: [{ text: lastMessageText }],
         }
       ],
       config: {
@@ -74,15 +86,15 @@ export async function POST(request: Request) {
     try {
       if (response.text) {
         const parsed = JSON.parse(response.text);
-        aiResponseText = parsed.response;
-        riskScore = parsed.riskScore;
+        aiResponseText = parsed.response || aiResponseText;
+        riskScore = typeof parsed.riskScore === 'number' ? parsed.riskScore : 0;
         
         // Persist to the database
         updateRiskScore(session.username, riskScore);
       }
-    } catch (error) {
-      console.error("Failed to parse JSON response from Gemini", error);
-      aiResponseText = response.text || "Error processing response.";
+    } catch {
+      // If JSON parsing fails, use the raw text as the response
+      aiResponseText = response.text || "I'm having trouble processing that right now. Please try again.";
     }
 
     return NextResponse.json({ 

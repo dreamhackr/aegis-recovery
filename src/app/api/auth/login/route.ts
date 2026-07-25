@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { readDb } from '@/lib/db';
-import { hashPassword } from '@/lib/db';
+import { readDb, hashPassword } from '@/lib/db';
 import { signToken } from '@/lib/auth';
 
 export async function POST(request: Request) {

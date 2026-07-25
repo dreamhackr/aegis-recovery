@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert';
-import { hashPassword, UserSession } from '../src/lib/db';
+import { hashPassword } from '../src/lib/db';
 import { signToken, verifyToken } from '../src/lib/auth';
 import { retrieveProtocols } from '../src/lib/medicalProtocols';
 

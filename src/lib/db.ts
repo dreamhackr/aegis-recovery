@@ -35,32 +35,32 @@ export function hashPassword(password: string, salt?: string): { hash: string; s
   return { hash, salt: secureSalt };
 }
 
-// Seed data
-const defaultSaltPatient = crypto.randomBytes(16).toString('hex');
-const defaultSaltCaregiver = crypto.randomBytes(16).toString('hex');
-const defaultSaltClinician = crypto.randomBytes(16).toString('hex');
+// Use DETERMINISTIC salts for seed data so demo users always work across restarts
+const SEED_SALT_PATIENT = 'aegis_seed_salt_patient_v1';
+const SEED_SALT_CAREGIVER = 'aegis_seed_salt_caregiver_v1';
+const SEED_SALT_CLINICIAN = 'aegis_seed_salt_clinician_v1';
 
 const defaultDb: DbSchema = {
   users: [
     { 
       id: 1, 
       username: 'patient', 
-      passwordHash: crypto.pbkdf2Sync('password123', defaultSaltPatient, 1000, 64, 'sha512').toString('hex'), 
-      salt: defaultSaltPatient, 
+      passwordHash: crypto.pbkdf2Sync('password123', SEED_SALT_PATIENT, 1000, 64, 'sha512').toString('hex'), 
+      salt: SEED_SALT_PATIENT, 
       role: 'Patient' 
     },
     { 
       id: 2, 
       username: 'caregiver', 
-      passwordHash: crypto.pbkdf2Sync('password123', defaultSaltCaregiver, 1000, 64, 'sha512').toString('hex'), 
-      salt: defaultSaltCaregiver, 
+      passwordHash: crypto.pbkdf2Sync('password123', SEED_SALT_CAREGIVER, 1000, 64, 'sha512').toString('hex'), 
+      salt: SEED_SALT_CAREGIVER, 
       role: 'Caregiver' 
     },
     { 
       id: 3, 
       username: 'clinician', 
-      passwordHash: crypto.pbkdf2Sync('password123', defaultSaltClinician, 1000, 64, 'sha512').toString('hex'), 
-      salt: defaultSaltClinician, 
+      passwordHash: crypto.pbkdf2Sync('password123', SEED_SALT_CLINICIAN, 1000, 64, 'sha512').toString('hex'), 
+      salt: SEED_SALT_CLINICIAN, 
       role: 'Clinician' 
     }
   ],
