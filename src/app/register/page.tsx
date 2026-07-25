@@ -99,7 +99,7 @@ export default function Register() {
               <select
                 id="role"
                 value={role}
-                onChange={(e) => setRole(e.target.value as any)}
+                onChange={(e) => setRole(e.target.value as 'Patient' | 'Caregiver' | 'Clinician')}
                 style={{
                   width: '100%',
                   padding: '1rem',

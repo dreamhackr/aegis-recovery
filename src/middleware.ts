@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
       url.pathname = '/login';
       return NextResponse.redirect(url);
     }
-  } catch (error) {
+  } catch {
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
