@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { retrieveProtocols } from '@/lib/medicalProtocols';
+import { updateRiskScore } from '@/lib/db';
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -62,6 +63,9 @@ export async function POST(request: Request) {
         const parsed = JSON.parse(response.text);
         aiResponseText = parsed.response;
         riskScore = parsed.riskScore;
+        
+        // Persist to the database
+        updateRiskScore(userRole as 'patient' | 'caregiver', riskScore);
       }
     } catch (error) {
       console.error("Failed to parse JSON response from Gemini", error);

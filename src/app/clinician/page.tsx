@@ -11,35 +11,23 @@ export default function ClinicianDashboard() {
     { id: 2, name: 'Sarah Smith', type: 'Caregiver', riskScore: 15, status: 'Stable' },
   ]);
 
-  const updateScores = () => {
-    if (typeof window !== 'undefined') {
-      const patientRisk = parseInt(localStorage.getItem('mockPatientRisk') || '10');
-      const caregiverRisk = parseInt(localStorage.getItem('mockCaregiverRisk') || '15');
-      
-      setPatients([
-        { 
-          id: 1, 
-          name: 'Alex Johnson', 
-          type: 'Patient', 
-          riskScore: patientRisk, 
-          status: patientRisk > 75 ? 'Critical Alert' : patientRisk > 50 ? 'Monitor' : 'Stable' 
-        },
-        { 
-          id: 2, 
-          name: 'Sarah Smith', 
-          type: 'Caregiver', 
-          riskScore: caregiverRisk, 
-          status: caregiverRisk > 75 ? 'Critical Alert' : caregiverRisk > 50 ? 'Monitor' : 'Stable' 
-        },
-      ]);
+  const updateScores = async () => {
+    try {
+      const res = await fetch('/api/clinician/patients');
+      if (res.ok) {
+        const data = await res.json();
+        setPatients(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch patients data", error);
     }
   };
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     updateScores();
-    window.addEventListener('storage', updateScores);
-    return () => window.removeEventListener('storage', updateScores);
+    const interval = setInterval(updateScores, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
