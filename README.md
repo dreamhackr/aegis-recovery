@@ -34,3 +34,22 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+Test User Credentials:
+Here are the live demo credentials for your submission:
+
+🏥 Patient Portal
+
+Username: patient
+Password: password123
+(Accesses craving management tools, grounding protocols, and zero-typing voice chat.)
+❤️ Caregiver Portal
+
+Username: caregiver
+Password: password123
+(Accesses burnout prevention, boundary-setting scripts, and crisis de-escalation.)
+🩺 Clinician Dashboard
+
+Username: clinician
+Password: password123
+(Provides live patient/caregiver tracking and real-time distress risk scoring.)
