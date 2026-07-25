@@ -1,14 +1,45 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
 export default function ClinicianDashboard() {
-  // Mock Data
-  const patients = [
-    { id: 1, name: 'Alex Johnson', type: 'Patient', riskScore: 85, status: 'High Risk' },
-    { id: 2, name: 'Sarah Smith', type: 'Caregiver', riskScore: 40, status: 'Stable' },
-  ];
+  const [patients, setPatients] = useState([
+    { id: 1, name: 'Alex Johnson', type: 'Patient', riskScore: 10, status: 'Stable' },
+    { id: 2, name: 'Sarah Smith', type: 'Caregiver', riskScore: 15, status: 'Stable' },
+  ]);
+
+  const updateScores = () => {
+    if (typeof window !== 'undefined') {
+      const patientRisk = parseInt(localStorage.getItem('mockPatientRisk') || '10');
+      const caregiverRisk = parseInt(localStorage.getItem('mockCaregiverRisk') || '15');
+      
+      setPatients([
+        { 
+          id: 1, 
+          name: 'Alex Johnson', 
+          type: 'Patient', 
+          riskScore: patientRisk, 
+          status: patientRisk > 75 ? 'Critical Alert' : patientRisk > 50 ? 'Monitor' : 'Stable' 
+        },
+        { 
+          id: 2, 
+          name: 'Sarah Smith', 
+          type: 'Caregiver', 
+          riskScore: caregiverRisk, 
+          status: caregiverRisk > 75 ? 'Critical Alert' : caregiverRisk > 50 ? 'Monitor' : 'Stable' 
+        },
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    updateScores();
+    window.addEventListener('storage', updateScores);
+    return () => window.removeEventListener('storage', updateScores);
+  }, []);
 
   return (
     <div className="container">
@@ -47,14 +78,15 @@ export default function ClinicianDashboard() {
                         <div style={{ 
                           width: `${p.riskScore}%`, 
                           height: '100%', 
-                          background: p.riskScore > 75 ? 'var(--danger)' : 'var(--secondary)'
+                          background: p.riskScore > 75 ? 'var(--danger)' : p.riskScore > 50 ? 'orange' : 'var(--secondary)'
                         }}></div>
                       </div>
                       <span style={{ fontSize: '0.875rem' }}>{p.riskScore}</span>
                     </div>
                   </td>
-                  <td style={{ padding: '1rem 0', color: p.status === 'High Risk' ? 'var(--danger)' : 'var(--secondary)' }}>
+                  <td style={{ padding: '1rem 0', color: p.status === 'Critical Alert' ? 'var(--danger)' : p.status === 'Monitor' ? 'orange' : 'var(--secondary)', fontWeight: 'bold' }}>
                     {p.status}
+                    {p.status === 'Critical Alert' && <span style={{ marginLeft: '0.5rem' }}>🚨</span>}
                   </td>
                 </tr>
               ))}

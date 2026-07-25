@@ -52,6 +52,20 @@ export const GenAIChat: React.FC<GenAIChatProps> = ({ userRole }) => {
         setMessages([...newMessages, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
       } else {
         setMessages([...newMessages, { role: 'assistant', content: data.content }]);
+        
+        // Mock sending the risk score to the backend/clinician dashboard
+        if (data.riskScore !== undefined) {
+          try {
+            // We use localStorage to mock a database for the clinician dashboard
+            const key = userRole === 'patient' ? 'mockPatientRisk' : 'mockCaregiverRisk';
+            localStorage.setItem(key, data.riskScore.toString());
+            
+            // Dispatch a custom event so the dashboard can update in real-time if open in same browser
+            window.dispatchEvent(new Event('storage'));
+          } catch (e) {
+            console.error("Could not save mock risk score");
+          }
+        }
       }
     } catch (err) {
       setMessages([...newMessages, { role: 'assistant', content: 'Connection error. Please try again.' }]);
