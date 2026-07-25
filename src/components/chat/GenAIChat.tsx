@@ -37,13 +37,9 @@ export const GenAIChat: React.FC<GenAIChatProps> = ({ userRole }) => {
     if (!text.trim()) return;
     
     const userMessage: Message = { role: 'user', content: text };
+    const updatedMessages = [...messages, userMessage];
     
-    // Use functional updater to get latest messages without stale closure
-    let newMessages: Message[] = [];
-    setMessages(prev => {
-      newMessages = [...prev, userMessage];
-      return newMessages;
-    });
+    setMessages(updatedMessages);
     setInput('');
     setIsLoading(true);
 
@@ -51,7 +47,7 @@ export const GenAIChat: React.FC<GenAIChatProps> = ({ userRole }) => {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, userRole })
+        body: JSON.stringify({ messages: updatedMessages, userRole })
       });
       
       const data = await res.json();
@@ -70,7 +66,7 @@ export const GenAIChat: React.FC<GenAIChatProps> = ({ userRole }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [userRole]);
+  }, [messages, userRole]);
 
   const handleVoiceTranscript = useCallback((text: string) => {
     handleSend(text);
