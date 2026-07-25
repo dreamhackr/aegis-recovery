@@ -36,6 +36,7 @@ export default function ClinicianDashboard() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     updateScores();
     window.addEventListener('storage', updateScores);
     return () => window.removeEventListener('storage', updateScores);

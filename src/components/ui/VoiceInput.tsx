@@ -11,31 +11,36 @@ interface VoiceInputProps {
 
 export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isListening, setIsListening }) => {
   const [supportVoice, setSupportVoice] = useState(true);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<unknown>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const SpeechRecognition = (window as unknown as { SpeechRecognition: unknown }).SpeechRecognition || (window as unknown as { webkitSpeechRecognition: unknown }).webkitSpeechRecognition;
       if (SpeechRecognition) {
-        recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = false;
-        recognitionRef.current.interimResults = false;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        recognitionRef.current = new (SpeechRecognition as any)();
+        (recognitionRef.current as { continuous: boolean }).continuous = false;
+        (recognitionRef.current as { interimResults: boolean }).interimResults = false;
         
-        recognitionRef.current.onresult = (event: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (recognitionRef.current as any).onresult = (event: any) => {
           const transcript = event.results[0][0].transcript;
           onTranscript(transcript);
           setIsListening(false);
         };
 
-        recognitionRef.current.onerror = (event: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (recognitionRef.current as any).onerror = (event: any) => {
           console.error("Speech recognition error", event.error);
           setIsListening(false);
         };
         
-        recognitionRef.current.onend = () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (recognitionRef.current as any).onend = () => {
           setIsListening(false);
         };
       } else {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSupportVoice(false);
       }
     }
@@ -45,12 +50,14 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, isListenin
     if (recognitionRef.current) {
       if (isListening) {
         try {
-          recognitionRef.current.start();
-        } catch (e) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (recognitionRef.current as any).start();
+        } catch {
           console.log("Already listening");
         }
       } else {
-        recognitionRef.current.stop();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (recognitionRef.current as any).stop();
       }
     }
   }, [isListening]);

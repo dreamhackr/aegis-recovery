@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     }
 
     const lastMessage = messages[messages.length - 1].content;
-    const previousMessages = messages.slice(0, -1).map((msg: any) => ({
+    const previousMessages = messages.slice(0, -1).map((msg: { role: string, content: string }) => ({
       role: msg.role === 'user' ? 'user' : 'model',
       parts: [{ text: msg.content }],
     }));
@@ -55,8 +55,8 @@ export async function POST(request: Request) {
         aiResponseText = parsed.response;
         riskScore = parsed.riskScore;
       }
-    } catch (e) {
-      console.error("Failed to parse JSON response from Gemini", e);
+    } catch (error) {
+      console.error("Failed to parse JSON response from Gemini", error);
       aiResponseText = response.text || "Error processing response.";
     }
 
@@ -66,8 +66,9 @@ export async function POST(request: Request) {
       riskScore: riskScore
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("GenAI Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

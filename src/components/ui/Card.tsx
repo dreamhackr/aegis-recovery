@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 interface CardProps {
@@ -5,18 +7,21 @@ interface CardProps {
   title?: string;
   className?: string;
   interactive?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const Card: React.FC<CardProps> = ({ 
   children, 
   title, 
   className = '',
-  interactive = false
+  interactive = false,
+  style = {}
 }) => {
   return (
     <div 
       className={`glass-panel ${className}`}
       style={{
+        ...style,
         transition: interactive ? 'all 0.3s ease' : 'none',
         cursor: interactive ? 'pointer' : 'default',
         transform: interactive ? 'scale(1)' : 'none',

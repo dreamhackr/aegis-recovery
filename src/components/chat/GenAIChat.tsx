@@ -62,12 +62,12 @@ export const GenAIChat: React.FC<GenAIChatProps> = ({ userRole }) => {
             
             // Dispatch a custom event so the dashboard can update in real-time if open in same browser
             window.dispatchEvent(new Event('storage'));
-          } catch (e) {
+          } catch {
             console.error("Could not save mock risk score");
           }
         }
       }
-    } catch (err) {
+    } catch {
       setMessages([...newMessages, { role: 'assistant', content: 'Connection error. Please try again.' }]);
     } finally {
       setIsLoading(false);

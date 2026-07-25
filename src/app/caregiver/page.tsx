@@ -15,7 +15,7 @@ export default function CaregiverPortal() {
       
       <div className="animate-fade-in">
         <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
-          Welcome. We're here to support you. Chat below for help with burnout prevention, boundary setting, and crisis de-escalation scripts.
+          Welcome. We&apos;re here to support you. Chat below for help with burnout prevention, boundary setting, and crisis de-escalation scripts.
         </p>
         
         <GenAIChat userRole="caregiver" />
